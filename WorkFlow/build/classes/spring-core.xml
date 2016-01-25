@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		                    http://www.springframework.org/schema/context 
+		                    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		                    http://www.springframework.org/schema/tx 
+		                    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		                    http://www.springframework.org/schema/aop 
+		                    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"> 
+
+	
+	<!-- 配置外部数据库连接信息-->
+	<context:property-placeholder location="classpath:db.properties"/>
+	
+	<!--配置数据源  -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+	<property name="driverClassName" value="${jdbc.driverClassName}"></property>
+	<property name="url" value="${jdbc.url}"></property>
+	<property name="username" value="${jdbc.username}"/>
+	<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- 配置sessionfactory工厂用于注入hibernatedaoSupport -->
+	<bean class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" id="sessionFactory">
+	<property name="dataSource" ref="dataSource"></property>
+	<property name="hibernateProperties">
+	<value>
+				hibernate.hbm2ddl.auto=update
+				hibernate.show_sql=true
+				hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+		</value>
+	</property>
+	<property name="mappingLocations">
+		<list><value>classpath:com/lsl/entity/*.hbm.xml</value></list>
+	</property>
+	</bean>
+	<!--配置hibernatetransactionmanager事务  -->
+	<bean class="org.springframework.orm.hibernate3.HibernateTransactionManager"  id="transactionManager">
+	<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!--配置事务说明  -->
+	<tx:advice id="txadvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="save*" isolation="DEFAULT" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="update*" isolation="DEFAULT" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="delete*" isolation="DEFAULT" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	
+	<!--配置切面aop  -->
+	<aop:config>
+	<aop:pointcut expression="execution(*  com.lsl.service.*.*(..))"  id="aopPointcut"/>
+	<aop:advisor advice-ref="txadvice" pointcut-ref="aopPointcut"/>
+	</aop:config>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+</beans>                    
