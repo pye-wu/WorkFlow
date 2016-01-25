@@ -1,0 +1,10 @@
+/com/
+/db.properties
+/diagrams/
+/log4j.properties
+/spring-activit.xml
+/spring-core.xml
+/spring-dao.xml
+/spring-service.xml
+/spring-web.xml
+/struts.xml
